@@ -1,16 +1,14 @@
 import requests
 import csv
 import errno
-
 import sys
-from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 
-MARKETBEAT_NASDAQ_URL = 'http://www.marketbeat.com/stocks/NASDAQ/{0}'
-MARKETBEAT_NASDAQ_MOST_RECENT_URL = 'http://www.marketbeat.com/stocks/NASDAQ/{0}/?MostRecent=1'
-
+MARKETBEAT_NASDAQ_URL = 'https://www.marketbeat.com/stocks/NASDAQ/'
+MARKETBEAT_NASDAQ_MOST_RECENT_URL = 'https://www.marketbeat.com/stocks/NASDAQ/{0}/?MostRecent=1'
 NASDAQ_TICKER_LIST_FILE = 'NASDAQ.txt'
 OUTPUT_FILE = 'data/marketbeat_nasdaq_test.csv'
-
+headers_original = ["Ticker", "Date", "Firm", "Action", "Rating", "Price Target", "Actions"]
 
 def get_ranking_csvrows_from_url(url, tick, headers=None):
     '''
@@ -32,16 +30,22 @@ def get_ranking_csvrows_from_url(url, tick, headers=None):
                     this string.
     '''
     try:
-        page = requests.get(url)
+        page = requests.get(url+'/TSLA/forecast')
     except Exception as inst:
         raise inst
-    soup = bs(page.text)
+    soup = bs(page.text, "html.parser")
 
-    table = soup.find(lambda tag: tag.name == 'table' and
-                                  tag.has_key('id') and
-                                  tag['id'] == 'ratingstable' and
-                                  tag.has_key('class') and
-                                  tag['class'] == "tablesorter")
+    table = soup.find("table", {"class":"sort-table"}, {"id":'history-table'})
+    
+    #table = soup.find(lambda tag: tag.name == 'table' and
+    #                              tag.has_attr('class') and
+    #                              tag['class'] == "scroll-table"
+    #                              tag.has_attr('id') and
+    #                              tag['id'] == 'history-table' and
+    #                              tag.has_attr('class') and
+    #                              tag['class'] == "scroll-table sort-table"
+    #                              )
+    
     if table is None:
         raise Exception('No table in page')
 
@@ -50,7 +54,7 @@ def get_ranking_csvrows_from_url(url, tick, headers=None):
         raise Exception('Headers not found')
 
     cur_headers = [h.text.strip() for h in cur_headers]
-    cur_headers.insert(0, u'Ticker')
+    cur_headers.insert(0, 'Ticker')
 
     if headers is not None and headers != cur_headers:
         raise Exception('Wrong headers found', str(cur_headers))
@@ -58,7 +62,7 @@ def get_ranking_csvrows_from_url(url, tick, headers=None):
     data = table.findAll('td')  # ,{'class':'yfnc_tabledata1'})
 
     it = iter([d.text.strip() for d in data])  # create an iterator over the textual data
-    csvrows = zip([tick] * (1 + len(data) / 5), it, it, it, it, it,
+    csvrows = zip([tick] * int(1 + len(data) / 5), it, it, it, it, it,
                   it)  # each call to it returns the next data entry, so this zip will create a 6-tuple array
 
     # dirty trick (only return 2 parameters if we don't know what we're looking for):
@@ -75,29 +79,29 @@ def scrape_marketbeat_recommendations():
     tick = 'INTC'
     try:
         csvrows, headers = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick)
-        print "Headers for scraping are:\t" + ", ".join(headers)
-        print "Original headers were:   \tTicker, Date, Firm, Action, Rating, Price Target, Actions"
-        print "Sample data:             \t" + ", ".join(csvrows[0])
-        print "\nNumber of csv rows retrieved (stock actions for INTC): " + str(len(csvrows))
-        print '\t'.join(csvrows[0])
-        print '\t'.join(csvrows[1])
+        print("Headers for scraping are:\t" + ", ".join(headers))
+        print("Original headers were:   \tTicker, Date, Firm, Action, Rating, Price Target, Actions")
+        print("Sample data:             \t" + ", ".join(csvrows[0]))
+        print("\nNumber of csv rows retrieved (stock actions for INTC): " + str(len(csvrows)))
+        print('\t'.join(csvrows[0]))
+        print('\t'.join(csvrows[1]))
 
     except Exception as e:
-        print 'Problem retrieving headers'
-        print e.message
+        print('Problem retrieving headers')
+        print(e)
 
     # THIS TICKER SHOULD THROW AN EXCEPTION
     tick = 'AAME'
     try:
         csvrows = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick, headers)
     except Exception as e:
-        print 'Test error handling: SUCCESS'
+        print('Test error handling: SUCCESS')
         # print e
     else:
-        print 'Test error handling: FAIL'
+        print('Test error handling: FAIL')
 
     # Now: Get data on all the tickers
-    raw_input("Press any key to start scraping...")
+    input("Press any key to start scraping...")
 
     # First line up all the tickers that we want to extract
     with open(NASDAQ_TICKER_LIST_FILE, 'r') as f:
@@ -111,7 +115,7 @@ def scrape_marketbeat_recommendations():
     headers = None
     for i, tick in enumerate(tickers[1:]):
         tick = tick.split('\t')[0]
-        print i, tick, ',',
+        print(i, tick, ',',)
         try:
             if headers is None:
                 csvrows, headers = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick)
@@ -119,7 +123,7 @@ def scrape_marketbeat_recommendations():
                 csvrows = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick, headers)
             csvrows = [r[:-1] for r in csvrows]  # get rid of the last element in every tuple
         except Exception as inst:
-            print inst
+            print(inst)
             continue
 
         csvout.writerows(csvrows)
@@ -127,12 +131,15 @@ def scrape_marketbeat_recommendations():
     out.flush()
     out.close()
 
+tick= 'MSFT'
+url = MARKETBEAT_NASDAQ_URL
+csvrows, headers = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick)
 
 if __name__ == "__main__":
     try:
         scrape_marketbeat_recommendations()
     except KeyboardInterrupt:
         pass
-    except IOError, e:
+    except IOError as e:
         if e.errno != errno.EPIPE:
-            raise e
+            raise
