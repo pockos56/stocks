@@ -1,0 +1,10 @@
+requests
+numpy 
+BeautifulSoup4
+pandas
+time
+datetime
+re
+os
+tqdm
+random

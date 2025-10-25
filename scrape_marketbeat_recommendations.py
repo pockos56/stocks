@@ -4,11 +4,13 @@ import errno
 import sys
 from bs4 import BeautifulSoup as bs
 
-MARKETBEAT_NASDAQ_URL = 'https://www.marketbeat.com/stocks/NASDAQ/'
+MARKETBEAT_NASDAQ_URL = 'https://www.marketbeat.com/stocks/NASDAQ/{0}/forecast'
 MARKETBEAT_NASDAQ_MOST_RECENT_URL = 'https://www.marketbeat.com/stocks/NASDAQ/{0}/?MostRecent=1'
 NASDAQ_TICKER_LIST_FILE = 'NASDAQ.txt'
 OUTPUT_FILE = 'data/marketbeat_nasdaq_test.csv'
 headers_original = ["Ticker", "Date", "Firm", "Action", "Rating", "Price Target", "Actions"]
+tick = None
+url = MARKETBEAT_NASDAQ_URL
 
 def get_ranking_csvrows_from_url(url, tick, headers=None):
     '''
@@ -30,7 +32,10 @@ def get_ranking_csvrows_from_url(url, tick, headers=None):
                     this string.
     '''
     try:
-        page = requests.get(url+'/TSLA/forecast')
+        if tick == None:
+            page = requests.get(url.format("MSFT"))
+        else:
+            page = requests.get(url)
     except Exception as inst:
         raise inst
     soup = bs(page.text, "html.parser")
@@ -49,7 +54,7 @@ def get_ranking_csvrows_from_url(url, tick, headers=None):
     if table is None:
         raise Exception('No table in page')
 
-    cur_headers = table.findAll('th')  # ,{'class':'header'})
+    cur_headers = table.find_all('th')  # ,{'class':'header'})
     if cur_headers is None:
         raise Exception('Headers not found')
 
@@ -59,17 +64,17 @@ def get_ranking_csvrows_from_url(url, tick, headers=None):
     if headers is not None and headers != cur_headers:
         raise Exception('Wrong headers found', str(cur_headers))
 
-    data = table.findAll('td')  # ,{'class':'yfnc_tabledata1'})
+    data = table.find_all('td')  # ,{'class':'yfnc_tabledata1'})
 
     it = iter([d.text.strip() for d in data])  # create an iterator over the textual data
     csvrows = zip([tick] * int(1 + len(data) / 5), it, it, it, it, it,
-                  it)  # each call to it returns the next data entry, so this zip will create a 6-tuple array
+                  it, it, it)  # each call to it returns the next data entry, so this zip will create a 6-tuple array
 
     # dirty trick (only return 2 parameters if we don't know what we're looking for):
     if headers is None:
-        ret = csvrows, cur_headers
+        ret = list(csvrows), cur_headers
     else:
-        ret = csvrows
+        ret = list(csvrows)
 
     return ret
 
@@ -91,7 +96,7 @@ def scrape_marketbeat_recommendations():
         print(e)
 
     # THIS TICKER SHOULD THROW AN EXCEPTION
-    tick = 'AAME'
+    tick = 'ZZPQ'
     try:
         csvrows = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick, headers)
     except Exception as e:
@@ -130,9 +135,6 @@ def scrape_marketbeat_recommendations():
 
     out.flush()
     out.close()
-
-tick= 'MSFT'
-url = MARKETBEAT_NASDAQ_URL
 csvrows, headers = get_ranking_csvrows_from_url(MARKETBEAT_NASDAQ_URL.format(tick), tick)
 
 if __name__ == "__main__":
