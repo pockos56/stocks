@@ -127,8 +127,11 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
     # Optionally save
     if save:
-        file_dir = os.path.join('data', f'{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv')
-        analyst_data.to_csv(file_dir, index=False)
+        file_dir_timestamp = os.path.join('data', f'{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv')
+        analyst_data.to_csv(file_dir_timestamp, index=False)
+        file_dir_latest = os.path.join('data', 'latest_top_analysts.csv')
+        analyst_data.to_csv(file_dir_latest, index=False)
+
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
