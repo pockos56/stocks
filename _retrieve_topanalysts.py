@@ -28,7 +28,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         # Recover file
         df = pd.DataFrame([])
         try:
-            df = pd.read_csv("data/analysts_anames.csv")
+            df = pd.read_csv("data/analysts_names.csv")
         except:
             print('CSV file not found. Searching the web to retrieve analyst names.')
             pass
