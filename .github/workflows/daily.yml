@@ -2,8 +2,8 @@ name: Run Daily Retrieval of Analyst Rankings
 
 on:
   schedule:
-    - cron: "0 6 * * *"  # every day at 06:00 UTC
-  workflow_dispatch:     # allow manual trigger from GitHub UI
+    - cron: "0 6 * * 5"  # every Friday at 06:00 UTC
+  workflow_dispatch:
 
 jobs:
   run-scraper:
@@ -28,6 +28,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add output.csv
+          git add *_top_analysts.csv
           git commit -m "Daily update $(date)"
           git push
+

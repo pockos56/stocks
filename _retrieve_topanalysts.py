@@ -42,6 +42,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
                 #Retrieve text from URL
                 response = requests.get(marketbeat_analyst_url + f'{number_i}/', headers={"User-Agent": "Mozilla/5.0"})
                 text = BeautifulSoup(response.text, "html.parser").get_text(" ", strip=True)
+                time.sleep(1)
 
                 #Retrieve name 
                 match = re.search(r'(\b\w+\b)\s+(\b\w+\b)\s+is a stock analyst', text)
@@ -85,7 +86,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
                 print(f"Top{top_no} analysts list complete! Stopping the process!")
                 break
             elif (success_ratio > acceptance_percentage) and (i > 2*top):
-                print(f"{100*(round(success_ratio, ndigits=2))}% out of top{top_no} analysts found. Stopping the process!")
+                print(f"{(round((100*success_ratio), ndigits=1))}% out of top{top_no} analysts found. Stopping the process!")
                 break
             elif (i >= max_iterations):
                 print(f"Max iterations ({max_iterations}) reached. Stopping the process!")
