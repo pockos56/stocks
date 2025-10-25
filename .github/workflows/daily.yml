@@ -1,4 +1,4 @@
-name: Run Daily Scraper
+name: Run Daily Retrieval of Analyst Rankings
 
 on:
   schedule:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
