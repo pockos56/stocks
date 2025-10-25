@@ -1,10 +1,5 @@
 requests
 numpy 
-BeautifulSoup4
+beautifulsoup4
 pandas
-time
-datetime
-re
-os
 tqdm
-random
