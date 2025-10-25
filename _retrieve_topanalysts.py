@@ -128,7 +128,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     # Optionally save
     if save:
         # create local folder
-        folder = "from Stocks"
+        folder = "from-Stocks"
         os.makedirs(folder, exist_ok=True)
 
         file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv")
