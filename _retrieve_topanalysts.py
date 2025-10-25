@@ -131,7 +131,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
     # Optionally save
     if save:
-        analyst_data.to_csv(f"data\{datetime.now().strftime("%Y%m%d")}_{mode}_top_analysts.csv", index=False)
+        analyst_data.to_csv(f"data\{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv", index=False)
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
