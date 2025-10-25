@@ -1,4 +1,4 @@
-name: Run Daily Retrieval of Analyst Rankings
+name: Run Daily Retrieval of Analyst Rankings and push to Public Repo
 
 on:
   schedule:
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run the scraper
+      - name: Run scraper
         run: python _retrieve_topanalysts.py
 
       - name: Commit and push output
@@ -30,5 +30,25 @@ jobs:
           git config user.email "actions@github.com"
           git add data/*.csv
           git commit -m "Daily update $(date)"
+          git push
+      
+      - name: Push to public repo
+        env:
+          PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          # clone the public repo
+          git clone https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/pockos56/Public-files.git public_repo
+          cd public_repo
+
+          # copy CSVs
+          mkdir -p from-Stocks
+          cp ../from-Stocks/* from-Stocks/
+
+          # commit & push
+          git add from-Stocks/*
+          git commit -m "Daily update $(date +'%Y-%m-%d')" || echo "Nothing to commit"
           git push
 

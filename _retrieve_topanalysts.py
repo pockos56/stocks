@@ -127,9 +127,13 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
     # Optionally save
     if save:
-        file_dir_timestamp = os.path.join('data', f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv")
+        # create local folder
+        folder = "from Stocks"
+        os.makedirs(folder, exist_ok=True)
+
+        file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv")
         analyst_data.to_csv(file_dir_timestamp, index=False)
-        file_dir_latest = os.path.join('data', 'latest_top_analysts.csv')
+        file_dir_latest = os.path.join(folder, 'latest_top_analysts.csv')
         analyst_data.to_csv(file_dir_latest, index=False)
 
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
