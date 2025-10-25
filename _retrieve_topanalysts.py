@@ -139,5 +139,5 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
-results = analyst_ranks(top_no=5, mode='fast')
+results = analyst_ranks(top_no=10, max_iterations=50, mode='fast')
 
