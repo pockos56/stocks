@@ -12,11 +12,6 @@ import random
 NO_ANALYSTS_IN_MARKETBEAT = 2635
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli"]))
 
-# Create random file
-df = pd.DataFrame(data = manual_list, columns=['Analyst_name'])
-df.to_csv("data/test_file.csv", index=False)
-
-
 def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, save=True, mode='fast', top_no = 20, acceptance_percentage = 0.9, max_iterations = 100):
 
     # Links
@@ -28,7 +23,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         # Recover file
         df = pd.DataFrame([])
         try:
-            df = pd.read_csv("data/analysts_names.csv")
+            df = pd.read_csv(os.path.join('data', 'analysts_names.csv'))
         except:
             print('CSV file not found. Searching the web to retrieve analyst names.')
             pass
@@ -51,7 +46,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
                     auto_list = np.append(auto_list, name_i)
             # Save, print, return
             df = pd.DataFrame(data = {'Names':auto_list})
-            df.to_csv("data/analysts_names.csv", index=False)
+            df.to_csv(os.path.join('data','analysts_names.csv'), index=False)
             print(f"Found {len(df)} analyst pages and saved as 'data/analysts_names.csv'.")
         else:
 
@@ -66,7 +61,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     # If available, sort and save the analysts_name based on previous data so as to focus on promising analysts and reduce computation time
     if (len(np.array(os.listdir('data/'))[['top_analysts' in i for i in os.listdir('data/')]]) > 0) & (mode == 'fast'):
         latest_file = np.sort(np.array(os.listdir('data/'))[['full_top_analysts' in i for i in os.listdir('data/')]])[-1]
-        latest_file_csv = pd.read_csv(f'data/{latest_file}')
+        latest_file_csv = pd.read_csv(os.path.join('data', f'{latest_file}'))
         list = latest_file_csv[latest_file_csv['Ranking'] > 0]['Analyst name'].reset_index(drop=True)
     elif mode=='full':
         list = np.unique(np.append(auto_list, manual_list))
@@ -132,7 +127,8 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
     # Optionally save
     if save:
-        analyst_data.to_csv(f"data\{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv", index=False)
+        file_dir = os.path.join('data', f'{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv')
+        analyst_data.to_csv(file_dir, index=False)
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
