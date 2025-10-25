@@ -9,6 +9,7 @@ import os
 import tqdm
 import random
 
+
 NO_ANALYSTS_IN_MARKETBEAT = 2635
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli"]))
 
@@ -69,7 +70,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         print(f"Error: {TypeError('Define mode as fast or full')}. Please try again!")
         time.sleep(600)
 
-    analyst_data = pd.DataFrame(data = {'Analyst name': list, 'Analyst name (humanized)': 'empty', 'Ranking': 9999, 'URL': 'empty'})
+    analyst_data = pd.DataFrame(data = {'Analyst name': list, 'Analyst name (humanized)': 'empty', 'Ranking': random.randint(9900,9999), 'URL': 'empty'})
 
             
     for i in tqdm.tqdm(range(0, len(analyst_data))):
