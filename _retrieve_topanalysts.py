@@ -70,7 +70,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     elif mode=='full':
         list = np.unique(np.append(auto_list, manual_list))
     else:
-        print(f"Error: {TypeError("Define mode as 'fast' or 'full'")}. Please try again!")
+        print(f"Error: {TypeError('Define mode as fast or full')}. Please try again!")
         time.sleep(600)
 
     analyst_data = pd.DataFrame(data = {'Analyst name': list, 'Analyst name (humanized)': 'empty', 'Ranking': 9999, 'URL': 'empty'})
