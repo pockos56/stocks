@@ -9,7 +9,6 @@ import os
 import tqdm
 import random
 
-
 NO_ANALYSTS_IN_MARKETBEAT = 2635
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli"]))
 
@@ -70,7 +69,11 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         print(f"Error: {TypeError('Define mode as fast or full')}. Please try again!")
         time.sleep(600)
 
-    analyst_data = pd.DataFrame(data = {'Analyst name': list, 'Analyst name (humanized)': 'empty', 'Ranking': random.randint(9900,9999), 'URL': 'empty'})
+    analyst_data = pd.DataFrame(data = {'Analyst name': list,
+                                        #'Analyst name (humanized)': 'empty',
+                                        'Ranking': random.randint(9900,9999),
+                                        'URL': 'empty',
+                                        'Last update': 'Not found'})
 
             
     for i in tqdm.tqdm(range(0, len(analyst_data))):
@@ -102,8 +105,14 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
             s = BeautifulSoup(res.text, "html.parser")
 
             # Insert humanized name and URL to DataFrame
-            analyst_data.loc[i,"Analyst name (humanized)"] = s.find("h1").get_text(strip=True)
+            #analyst_data.loc[i,"Analyst name (humanized)"] = s.find("h1").get_text(strip=True)
             analyst_data.loc[i,"URL"] = analyst_i_url
+
+            # Insert last recommendation to DataFrame
+            pattern = r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?:0?[1-9]|[12][0-9]|3[01]), (?:199\d|20[0-5]\d)\b'
+            match = re.search(pattern, s.text)
+            if match:
+                analyst_data.loc[i,"Last update"] = str(datetime.strptime(match.group(), "%b %d, %Y").strftime("%d %b %Y"))
 
             # Retrieve ranking
             match = re.search(r'rank:\s*#?(\d+)', s.find(string=lambda t:'rank:' in t).lower())
