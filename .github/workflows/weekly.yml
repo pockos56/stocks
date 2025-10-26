@@ -1,4 +1,4 @@
-name: Run Daily Retrieval of Analyst Rankings and push to Public Repo
+name: Weekly Retrieval and push to Public-files Repo
 
 on:
   schedule:
