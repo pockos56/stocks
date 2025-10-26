@@ -2,7 +2,7 @@ name: Run Daily Retrieval of Analyst Rankings and push to Public Repo
 
 on:
   schedule:
-    - cron: "0 6 * * 5"  # every Friday at 06:00 UTC
+    - cron: "0 1 * * 1"  # everyday at 06:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run the scraper
-        run: python _retrieve_topanalysts.py
+        run: python _retrieve_topanalysts.py --mode full
 
       - name: Commit and push output
         run: |
