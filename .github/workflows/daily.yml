@@ -1,30 +1,59 @@
-name: Run Daily Retrieval of Analyst Rankings and push to Public Repo
+name: Run Analyst Script
 
 on:
   schedule:
-    - cron: "0 6 * * 5"  # every Friday at 06:00 UTC
-  workflow_dispatch:
+    - cron: "0 8 * * *"   # daily
+    - cron: "0 1 * * 0"  # weekly
 
 jobs:
-  run-scraper:
+  fast-run:
+    if: github.event.schedule == '0 8 * * *'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r requirements.txt
+      - run: python _retrieve_topanalysts.py --mode fast
+        name: Commit and push output
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add *_top_analysts.csv
+          git add *latest_top_analysts.csv
+          git commit -m "Daily update $(date)" || echo "Nothing to commit"
+          git push
+      
+      - name: Push to public repo
+        env:
+          PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+          # clone the public repo
+          git clone https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/pockos56/Public-files.git public_repo
+          cd public_repo
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+          # copy CSVs
+          mkdir -p from-Stocks
+          cp ../from-Stocks/* from-Stocks/
 
-      - name: Run the scraper
-        run: python _retrieve_topanalysts.py
+          # commit & push
+          git add from-Stocks/*
+          git commit -m "Daily update $(date +'%Y-%m-%d')" || echo "Nothing to commit"
+          git push
 
-      - name: Commit and push output
+  full-run:
+    if: github.event.schedule == "0 1 * * 0"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r requirements.txt
+      - run: python _retrieve_topanalysts.py --mode full
+        name: Commit and push output
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
