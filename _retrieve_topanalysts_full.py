@@ -18,7 +18,6 @@ manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. 
 parser = argparse.ArgumentParser()
 parser.add_argument("--mode", choices=["fast", "full"], default="fast")
 args = parser.parse_args()
-
 mode = args.mode
 
 def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, save=True, mode=mode, top_no = 100, acceptance_percentage = 0.9, max_iterations = 1000):

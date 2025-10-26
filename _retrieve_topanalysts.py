@@ -8,11 +8,18 @@ import re
 import os
 import tqdm
 import random
+import argparse
+
+# Import mode
+parser = argparse.ArgumentParser()
+parser.add_argument("--mode", choices=["fast", "full"], default="fast")
+args = parser.parse_args()
+mode = args.mode
 
 NO_ANALYSTS_IN_MARKETBEAT = 2635
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli"]))
 
-def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, save=True, mode='fast', top_no = 100, acceptance_percentage = 0.9, max_iterations = 1000):
+def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, save=True, mode=mode, top_no = 100, acceptance_percentage = 0.9, max_iterations = 1000):
 
     # Links
     marketbeat_analyst_url = 'https://www.marketbeat.com/all-access/analyst-rankings/'
@@ -149,5 +156,5 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
-results = analyst_ranks(mode='fast')
+results = analyst_ranks()
 
