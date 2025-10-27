@@ -146,8 +146,8 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     # target _blank to open new window
         return '<a target="_blank" href="{}">{}</a>'.format(val, val)
     HTML(df.to_html(render_links=True, escape=False))
-    #analyst_data.style.format({'URL': make_clickable}
-               )
+    #analyst_data.style.format({'URL': make_clickable})
+    
     # Optionally save
     if save:
         # create local folder
