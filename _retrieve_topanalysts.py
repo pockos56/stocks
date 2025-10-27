@@ -141,7 +141,12 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
     # Step 3: Sort by rank and show the top ones
     analyst_data = analyst_data.dropna(subset=["Ranking"]).sort_values("Ranking")
+    def make_clickable(val):
+    # target _blank to open new window
+        return '<a target="_blank" href="{}">{}</a>'.format(val, val)
 
+    analyst_data.style.format({'URL': make_clickable}
+               )
     # Optionally save
     if save:
         # create local folder
