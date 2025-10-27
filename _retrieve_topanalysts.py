@@ -9,6 +9,7 @@ import os
 import tqdm
 import random
 import argparse
+from IPython.display import HTML
 
 # Import mode
 parser = argparse.ArgumentParser()
@@ -144,8 +145,8 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     def make_clickable(val):
     # target _blank to open new window
         return '<a target="_blank" href="{}">{}</a>'.format(val, val)
-
-   # analyst_data.style.format({'URL': make_clickable}
+    HTML(df.to_html(render_links=True, escape=False))
+    #analyst_data.style.format({'URL': make_clickable}
                )
     # Optionally save
     if save:
