@@ -1,10 +1,14 @@
-name: Weekly Retrieval and push to Public-files Repo
+name: Daily Retrieval and push to Public-files Repo
 
 on:
   schedule:
-    - cron: "0 1 * * 1"  # everyday at 06:00 UTC
+    - cron: "0 1 * * *"  # everyday at 01:00
   workflow_dispatch:
 
+concurrency:
+  group: main-jobs
+  cancel-in-progress: true
+  
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
