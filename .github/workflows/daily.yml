@@ -1,4 +1,4 @@
-name: Daily Retrieval and push to Public-files Repo
+name: Hourly Retrieval and push to Public-files Repo
 
 on:
   schedule:
