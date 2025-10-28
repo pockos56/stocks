@@ -17,10 +17,10 @@ parser.add_argument("--mode", choices=["fast", "full"], default="fast")
 args = parser.parse_args()
 mode = args.mode
 
-NO_ANALYSTS_IN_MARKETBEAT = 2635
+NO_ANALYSTS_IN_MARKETBEAT = 2691
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli"]))
 
-def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, save=True, mode=mode, top_no = 100, acceptance_percentage = 0.9, max_iterations = 1000):
+def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, mode=mode, top_no = 100, acceptance_percentage = 0.9, max_iterations = 1000):
 
     # Links
     marketbeat_analyst_url = 'https://www.marketbeat.com/all-access/analyst-rankings/'
@@ -37,15 +37,15 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
             pass
 
         # If a new analysts_name list needs to be created:
-        if len(df) < 0.8*(end-start):
+        if (len(df) < 0.8*(end-start)):
     
             auto_list = np.array([])
-            for number_i in tqdm.tqdm(range(start,end)):
+            for number_i in tqdm.tqdm(range(start,end), desc='Finding analyst names'):
 
                 #Retrieve text from URL
                 response = requests.get(marketbeat_analyst_url + f'{number_i}/', headers={"User-Agent": "Mozilla/5.0"})
                 text = BeautifulSoup(response.text, "html.parser").get_text(" ", strip=True)
-                time.sleep(1)
+                time.sleep(random.uniform(2, 3))
 
                 #Retrieve name 
                 match = re.search(r'(\b\w+\b)\s+(\b\w+\b)\s+is a stock analyst', text)
@@ -71,21 +71,19 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         latest_file = np.sort(np.array(os.listdir('data/'))[['full_top_analysts' in i for i in os.listdir('data/')]])[-1]
         latest_file_csv = pd.read_csv(os.path.join('data', f'{latest_file}'))
         list = latest_file_csv[latest_file_csv['Ranking'] > 0]['Analyst name'].reset_index(drop=True)
-    elif mode=='full':
+    elif mode == 'full':
         list = np.unique(np.append(auto_list, manual_list))
     else:
         print(f"Error: {TypeError('Define mode as fast or full')}. Please try again!")
         time.sleep(600)
 
     analyst_data = pd.DataFrame(data = {'Analyst name': list,
-                                        #'Analyst name (humanized)': 'empty',
                                         'Ranking': random.randint(9900,9999),
                                         'URL': 'empty',
                                         'Last update': 'Not found'})
 
-            
     for i in tqdm.tqdm(range(0, len(analyst_data))):
-        if mode=="fast":
+        if mode == "fast":
             rankings_so_far = np.unique(analyst_data["Ranking"])
             top = top_no + 1
             success_ratio = (sum([i in rankings_so_far for i in np.array(range(1,top))])) / top
@@ -145,23 +143,22 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     def make_clickable(val):
     # target _blank to open new window
         return '<a target="_blank" href="{}">{}</a>'.format(val, val)
-    HTML(analyst_data.to_html(render_links=True, escape=False))
-    analyst_data.to_html('colored_table.html')
+    #HTML(analyst_data.to_html(render_links=True, escape=False))
     #analyst_data.style.format({'URL': make_clickable})
     
-    # Optionally save
-    if save:
-        # create local folder
-        folder = "from-Stocks"
-        os.makedirs(folder, exist_ok=True)
+    # Create and save results
+    # create local folder
+    folder = "from-Stocks"
+    os.makedirs(folder, exist_ok=True)
 
-        file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
-        analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
-        analyst_data.to_html(f'{file_dir_timestamp}.html')
-        file_dir_latest = os.path.join(folder, 'latest_top_analysts')
-        analyst_data.to_csv(f'{file_dir_latest}.csv', index=False)
-        analyst_data.to_html(f'{file_dir_latest}.html')
-        
+    file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
+    analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
+    analyst_data.to_html(f'{file_dir_timestamp}.html')
+    file_dir_latest = os.path.join(folder, 'latest_top_analysts')
+    analyst_data.to_csv(f'{file_dir_latest}.csv', index=False)
+    HTML(analyst_data.to_html(f'{file_dir_latest}.html', render_links=True, escape=False))
+
+    # Print snapshot    
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
