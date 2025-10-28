@@ -146,6 +146,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     # target _blank to open new window
         return '<a target="_blank" href="{}">{}</a>'.format(val, val)
     HTML(analyst_data.to_html(render_links=True, escape=False))
+    analyst_data.to_html('colored_table.html')
     #analyst_data.style.format({'URL': make_clickable})
     
     # Optionally save
@@ -156,9 +157,11 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
         file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv")
         analyst_data.to_csv(file_dir_timestamp, index=False)
+        analyst_data.to_html(f'{file_dir_timestamp}.html')
         file_dir_latest = os.path.join(folder, 'latest_top_analysts.csv')
         analyst_data.to_csv(file_dir_latest, index=False)
-
+        analyst_data.to_html(f'{file_dir_latest}.html')
+        
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
     return analyst_data
 
