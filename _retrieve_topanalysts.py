@@ -155,11 +155,11 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         folder = "from-Stocks"
         os.makedirs(folder, exist_ok=True)
 
-        file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts.csv")
-        analyst_data.to_csv(file_dir_timestamp, index=False)
+        file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
+        analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
         analyst_data.to_html(f'{file_dir_timestamp}.html')
-        file_dir_latest = os.path.join(folder, 'latest_top_analysts.csv')
-        analyst_data.to_csv(file_dir_latest, index=False)
+        file_dir_latest = os.path.join(folder, 'latest_top_analysts')
+        analyst_data.to_csv(f'{file_dir_latest}.csv', index=False)
         analyst_data.to_html(f'{file_dir_latest}.html')
         
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
