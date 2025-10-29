@@ -37,7 +37,7 @@ jobs:
           git add *latest_top_analysts.csv
           git add *latest_top_analysts.html
           git commit -m "Daily update $(date)" || echo "Nothing to commit"
-          git push
+          git push origin HEAD:${{ github.ref }}
       
       - name: Push to public repo
         env:
@@ -48,14 +48,14 @@ jobs:
 
           # clone the public repo
           git clone https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/pockos56/Public-files.git public_repo
-          cd public_repo
 
           # copy CSVs
-          mkdir -p from-Stocks
-          cp ../from-Stocks/* from-Stocks/
-
+          mkdir -p public_repo/from-Stocks
+          cp *_top_analysts.csv *_top_analysts.html *latest_top_analysts.csv *latest_top_analysts.html public_repo/from-Stocks/ || echo "No files to copy"
+          cd public_repo
+          
           # commit & push
-          git add from-Stocks/*
+          git add from-Stocks/
           git commit -m "Daily update $(date +'%Y-%m-%d')" || echo "Nothing to commit"
           git push
 
