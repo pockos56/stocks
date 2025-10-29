@@ -67,9 +67,9 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     # Step 2: Visit each analyst page and extract rank
 
     # If available, sort and save the analysts_name based on previous data so as to focus on promising analysts and reduce computation time
-    if (len(np.array(os.listdir('data/'))[['top_analysts' in i for i in os.listdir('data/')]]) > 0) & (mode == 'fast'):
-        latest_file = np.sort(np.array(os.listdir('data/'))[['full_top_analysts' in i for i in os.listdir('data/')]])[-1]
-        latest_file_csv = pd.read_csv(os.path.join('data', f'{latest_file}'))
+    if (len(np.array(os.listdir('from-Stocks/'))[['top_analysts' in i for i in os.listdir('from-Stocks/')]]) > 0) & (mode == 'fast'):
+        latest_file = np.sort(np.array(os.listdir('from-Stocks/'))[['full_top_analysts' in i for i in os.listdir('from-Stocks/')]])[-1]
+        latest_file_csv = pd.read_csv(os.path.join('from-Stocks', f'{latest_file}'))
         list = latest_file_csv[latest_file_csv['Ranking'] > 0]['Analyst name'].reset_index(drop=True)
     elif mode == 'full':
         list = np.unique(np.append(auto_list, manual_list))
