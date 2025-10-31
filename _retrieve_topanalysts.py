@@ -162,7 +162,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
             return ""  # Skip invalid dates
         
         # 0 days = fully opaque, 60+ days = very transparent
-        alpha = max(0.2, 1 - math.log(max(days_diff, 2)) / 3)
+        alpha = max(0.2, 1 - math.log(days_diff) / 3)
         return f"background-color: rgba(0, 180, 0, {alpha}); color: white;"
 
     def make_clickable(val):
@@ -179,7 +179,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     timestamp = datetime.now().strftime("%d-%b-%Y %H:%M:%S")
     with open(file_dir_latest, "w", encoding="utf-8") as f:
         f.write(f"<p style='font-family:Arial; font-size:14px; color:gray;'>Generated on: {timestamp}</p>\n")
-        styled.to_html(f, render_links=True, escape=False)
+        styled.to_html(f"{f}.html", render_links=True, escape=False)
 
     # Print snapshot    
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
