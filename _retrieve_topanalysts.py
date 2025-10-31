@@ -3,6 +3,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
+import math
 from datetime import datetime
 import re
 import os
@@ -140,23 +141,40 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
     # Step 3: Sort by rank and show the top ones
     analyst_data = analyst_data.dropna(subset=["Ranking"]).sort_values("Ranking")
-    def make_clickable(val):
-    # target _blank to open new window
-        return '<a target="_blank" href="{}">{}</a>'.format(val, val)
-    #HTML(analyst_data.to_html(render_links=True, escape=False))
-    #analyst_data.style.format({'URL': make_clickable})
     
-    # Create and save results
-    # create local folder
+    # Create local folder
     folder = "from-Stocks"
     os.makedirs(folder, exist_ok=True)
 
+    # Save results
     file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
     analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
-    analyst_data.to_html(f'{file_dir_timestamp}.html')
     file_dir_latest = os.path.join(folder, 'latest_top_analysts')
     analyst_data.to_csv(f'{file_dir_latest}.csv', index=False)
-    HTML(analyst_data.to_html(f'{file_dir_latest}.html', render_links=True, escape=False))
+
+    # Create latest HTML
+    # --- Styling functions ---
+
+    def color_by_date(date_str):
+        try:
+            days_diff = (datetime.now() - datetime.strptime(date_str, "%d %b %Y")).days
+        except Exception:
+            return ""  # Skip invalid dates
+        
+        # 0 days = fully opaque, 60+ days = very transparent
+        alpha = max(0.2, 1 - math.log(max(days_diff, 2)) / 3)
+        return f"background-color: rgba(0, 180, 0, {alpha}); color: white;"
+
+    def make_clickable(val):
+        return f'<a target="_blank" href="{val}">{val}</a>' if isinstance(val, str) and val.startswith("http") else val
+
+    # --- Apply styles ---
+    styled = (
+        analyst_data.style
+        .format({'URL': make_clickable})
+        .apply(lambda s: [color_by_date(d) if s.name == "Last update" else "" for d in s], axis=0)
+    )    
+    styled.to_html(f'{file_dir_latest}.html', render_links=True, escape=False)
 
     # Print snapshot    
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
