@@ -174,7 +174,12 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         .format({'URL': make_clickable})
         .apply(lambda s: [color_by_date(d) if s.name == "Last update" else "" for d in s], axis=0)
     )    
-    styled.to_html(f'{file_dir_latest}.html', render_links=True, escape=False)
+
+    # Save using to_html() while prepending timestamp text
+    timestamp = datetime.now().strftime("%d-%b-%Y %H:%M:%S")
+    with open(file_dir_latest, "w", encoding="utf-8") as f:
+        f.write(f"<p style='font-family:Arial; font-size:14px; color:gray;'>Generated on: {timestamp}</p>\n")
+        styled.to_html(f, render_links=True, escape=False)
 
     # Print snapshot    
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
