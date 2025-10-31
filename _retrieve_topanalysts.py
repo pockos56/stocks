@@ -149,8 +149,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     # Save results
     file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
     analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
-    file_dir_latest = os.path.join(folder, 'latest_top_analysts')
-    analyst_data.to_csv(f'{file_dir_latest}.csv', index=False)
+    file_dir_latest = os.path.join(folder, 'latest_top_analysts.html')
 
     # Create latest HTML
     # --- Styling functions ---
@@ -179,7 +178,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     timestamp = datetime.now().strftime("%d-%b-%Y %H:%M:%S")
     with open(file_dir_latest, "w", encoding="utf-8") as f:
         f.write(f"<p style='font-family:Arial; font-size:14px; color:gray;'>Generated on: {timestamp}</p>\n")
-        styled.to_html(f"{f}.html", render_links=True, escape=False)
+        styled.to_html(f, render_links=True, escape=False)
 
     # Print snapshot    
     print(analyst_data.loc[analyst_data['Ranking']>0,:].head(10))
