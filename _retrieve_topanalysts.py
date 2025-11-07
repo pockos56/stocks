@@ -21,7 +21,7 @@ mode = args.mode
 NO_ANALYSTS_IN_MARKETBEAT = 2691
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli"]))
 
-def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, mode=mode, top_no = 100, acceptance_percentage = 0.9, max_iterations = 1000):
+def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, mode=mode, top_no = 50, acceptance_percentage = 0.85, max_iterations = 500):
 
     # Links
     marketbeat_analyst_url = 'https://www.marketbeat.com/all-access/analyst-rankings/'

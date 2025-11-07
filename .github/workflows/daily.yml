@@ -2,7 +2,7 @@ name: Daily Retrieval and push to Public-files Repo
 
 on:
   schedule:
-    - cron: "0 1 * * *"  # everyday at 01:00
+    - cron: "0 1 * * 1,4"  # everyday at 01:00
   workflow_dispatch:
 
 concurrency:
