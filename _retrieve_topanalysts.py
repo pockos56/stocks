@@ -157,11 +157,11 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     def color_by_date(date_str):
         try:
             days_diff = (datetime.now() - datetime.strptime(date_str, "%d %b %Y")).days
+            days_diff = max(days_diff, 0)
+            alpha = max(0.15, 1 - math.log(days_diff + 1) / 3)
         except Exception:
-            return ""  # Skip invalid dates
-        
-        # 0 days = fully opaque, 60+ days = very transparent
-        alpha = max(0.2, 1 - math.log(days_diff + 1) / 3)
+            return ""
+    
         return f"background-color: rgba(0, 180, 0, {alpha}); color: white;"
 
     def make_clickable(val):
