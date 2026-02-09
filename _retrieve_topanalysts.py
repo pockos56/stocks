@@ -147,8 +147,9 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     os.makedirs(folder, exist_ok=True)
 
     # Save results
-    file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
-    analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
+    if mode == 'full':
+        file_dir_timestamp = os.path.join(folder, f"{datetime.now().strftime('%Y%m%d')}_{mode}_top_analysts")
+        analyst_data.to_csv(f'{file_dir_timestamp}.csv', index=False)
     file_dir_latest = os.path.join(folder, 'latest_top_analysts.html')
 
     # Create latest HTML
