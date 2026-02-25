@@ -2,7 +2,7 @@ name: Hourly Retrieval and push to Public-files Repo
 
 on:
   schedule:
-    - cron: "35 7,10,14,15,16,17,18,19,20,21,22,23 * * *"  # once per day
+    - cron: "35 7,14,15,16,18,20,22 * * *"  # once per day
   workflow_dispatch:
 
 concurrency:
@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
