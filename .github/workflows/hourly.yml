@@ -2,7 +2,7 @@ name: Hourly Retrieval and push to Public-files Repo
 
 on:
   schedule:
-    - cron: "35 5,12,13,14,15,16,18,20 * * *"  # once per day
+    - cron: "35 5,11,12,13,14,15,16,18,20 * * *"  # once per day
   workflow_dispatch:
 
 concurrency:
