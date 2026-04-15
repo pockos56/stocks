@@ -1,18 +1,16 @@
 name: Hourly Retrieval and push to Public-files Repo
-
 on:
   schedule:
-    - cron: "35 * * * *"  # once per day
+    - cron: "30 * * * *"  # every hour at :30
   workflow_dispatch:
 
 concurrency:
   group: main-jobs
   cancel-in-progress: false
-  
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,7 +18,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -30,30 +35,31 @@ jobs:
 
       - name: Commit and push output
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add *_top_analysts.html
-          git add *latest_top_analysts.html
-          git commit -m "Daily update $(date)" || echo "Nothing to commit"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add --ignore-errors *_top_analysts.html *latest_top_analysts.html
+          git diff --cached --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "Hourly update $(date +'%Y-%m-%d %H:%M UTC')"
+          git pull --rebase origin ${{ github.ref_name }}
           git push
-      
+
       - name: Push to public repo
         env:
           PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          # clone the public repo
-          git clone https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/pockos56/Public-files.git public_repo
+          git clone --depth=1 https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/pockos56/Public-files.git public_repo
           cd public_repo
-
-          # copy CSVs
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p from-Stocks
-          cp ../from-Stocks/* from-Stocks/
-
-          # commit & push
-          git add from-Stocks/*
-          git commit -m "Daily update $(date +'%Y-%m-%d')" || echo "Nothing to commit"
-          git push
-
+          # Only copy if source files exist
+          if compgen -G "../from-Stocks/*" > /dev/null; then
+            cp ../from-Stocks/* from-Stocks/
+            git add from-Stocks/
+            git diff --cached --quiet && echo "Nothing to commit" && exit 0
+            git commit -m "Hourly update $(date +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No files to copy from from-Stocks/"
+          fi
