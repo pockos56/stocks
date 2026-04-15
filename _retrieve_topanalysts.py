@@ -5,6 +5,7 @@ import pandas as pd
 import time
 import math
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import re
 import os
 import tqdm
@@ -176,7 +177,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
     )    
 
     # Save using to_html() while prepending timestamp text
-    timestamp = datetime.now().strftime("%d-%b-%Y %H:%M:%S")
+    timestamp = datetime.now(ZoneInfo("Europe/Madrid")).strftime("%d-%b-%Y %H:%M:%S")
     with open(file_dir_latest, "w", encoding="utf-8") as f:
         f.write(f"<p style='font-family:Arial; font-size:14px; color:gray;'>Generated on: {timestamp}</p>\n")
         styled.to_html(f, render_links=True, escape=False)
