@@ -12,6 +12,8 @@ import tqdm
 import random
 import argparse
 from IPython.display import HTML
+from pathlib import Path
+from playwright.sync_api import sync_playwright
 
 # Import mode
 parser = argparse.ArgumentParser()
@@ -19,7 +21,11 @@ parser.add_argument("--mode", choices=["fast", "full"], default="fast")
 args = parser.parse_args()
 mode = args.mode
 
-NO_ANALYSTS_IN_MARKETBEAT = 2691
+CACHE_DIR = Path("cache"); CACHE_DIR.mkdir(exist_ok=True)
+PROFILE_DIR = "pw_profile"      # keeps cookies between runs
+DELAY = 5                       # seconds between page loads, keep it polite
+
+NO_ANALYSTS_IN_MARKETBEAT = 1000
 manual_list = np.unique(np.array(["Gerard Cassidy", "Tom O Malley", "Patrick R. Trucchio", "Vamil Divan", "Mark Lipacis", "Jason Seidl","Quinn Bolton", "Dan Payne", "Scot Ciccarelli", "Rick Schafer", "Ross Seymore", "Patrick Brown", "Colin Rusch", "Shaul Eyal", "Jesse Sobelson", "Tore Svanberg", "James Lee", "Matthew Sheerin", "Matthew Cost", "Adam Borg", "Nicholas Jones", "Christopher Stathoulopoulos", "Trey Grooms", "Clark Lampen", "Bill Peterson", "Chris Kotowski", "Ebrahim Poonawala", "Mark Palmer", "Mark Mahaney", "Brent Thielman", "Christopher Allen", "Daniel Fannon", "Mike Mayo", "Michael Grondahl", "William Appicelli", 'Perez Mora', 'Cristina Fernandez', 'Andre Uggedal']))
 
 def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list, mode=mode, top_no = 50, acceptance_percentage = 0.85, max_iterations = 500):
@@ -106,33 +112,48 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
         analyst_i_url = analyst_i_url[0:-1] + "/"
 
 
-        # Try to retrieve info from URL
-        try:
-            # Request URL
-            res = requests.get(analyst_i_url, headers={"User-Agent": "Mozilla/5.0"})
-            s = BeautifulSoup(res.text, "html.parser")
+        ###### Try to retrieve info from URL
+        def is_challenge(html: str) -> bool:
+            return "just a moment" in html.lower()[:2000]
 
-            # Insert humanized name and URL to DataFrame
-            #analyst_data.loc[i,"Analyst name (humanized)"] = s.find("h1").get_text(strip=True)
-            analyst_data.loc[i,"URL"] = analyst_i_url
+        def fetch(url) -> str | None:
+            with sync_playwright() as p:
+                ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False)
+                page = ctx.new_page()
+                page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+                page.wait_for_timeout(1000)
+                html = page.content()
 
-            # Insert last recommendation to DataFrame
-            pattern = r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?:0?[1-9]|[12][0-9]|3[01]), (?:199\d|20[0-5]\d)\b'
-            match = re.search(pattern, s.text)
-            if match:
-                analyst_data.loc[i,"Last update"] = str(datetime.strptime(match.group(), "%b %d, %Y").strftime("%d %b %Y"))
+                if is_challenge(html):
+                    input("Challenge shown. Complete it in the browser window, "
+                        "then press Enter (Ctrl+C to stop)... ")
+                    page.wait_for_timeout(2000)
+                    html = page.content()
+                    if is_challenge(html):
+                        print("Still blocked, stopping here.")
+                        ctx.close()
+                        return None
 
-            # Retrieve ranking
-            match = re.search(r'rank:\s*#?(\d+)', s.find(string=lambda t:'rank:' in t).lower())
-            rank_number = None
-            if match:
-                rank_number = int(match.group(1))
-            analyst_data.loc[i,"Ranking"] = rank_number
+                ctx.close()
+                return html
+                           
+        html = fetch(analyst_i_url)
+        s = BeautifulSoup(html, "html.parser")
+        #text = s.get_text(" ", strip=True)
+        #m = re.search(r'rank:?\s*#?(\d+)', text, re.I)
 
-        except Exception as e:
-            time.sleep(10)
-            print(f"\nError reading {analyst_data['Analyst name'][i]}: {e}")
-            pass
+        # Insert last recommendation to DataFrame
+        pattern = r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?:0?[1-9]|[12][0-9]|3[01]), (?:199\d|20[0-5]\d)\b'
+        match = re.search(pattern, s.text)
+        if match:
+            analyst_data.loc[i,"Last update"] = str(datetime.strptime(match.group(), "%b %d, %Y").strftime("%d %b %Y"))
+
+        # Retrieve ranking
+        match = re.search(r'rank:\s*#?(\d+)', s.find(string=lambda t:'rank:' in t).lower())
+        rank_number = None
+        if match:
+            rank_number = int(match.group(1))
+        analyst_data.loc[i,"Ranking"] = rank_number
 
         # Sleep to avoid hitting the server too fast
         if ((i % 50) == 0) & (i != 0):
