@@ -118,7 +118,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
         def fetch(url) -> str | None:
             with sync_playwright() as p:
-                ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False)
+                ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=True)
                 page = ctx.new_page()
                 page.goto(url, wait_until="domcontentloaded", timeout=60_000)
                 page.wait_for_timeout(1000)
