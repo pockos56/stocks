@@ -29,6 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+        run: playwright install --with-deps chromium
 
       - name: Run the scraper
         run: python _retrieve_topanalysts.py --mode fast
