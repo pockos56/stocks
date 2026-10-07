@@ -21,6 +21,9 @@ parser.add_argument("--mode", choices=["fast", "full"], default="fast")
 args = parser.parse_args()
 mode = args.mode
 
+class Blocked(Exception):
+    pass
+
 CACHE_DIR = Path("cache"); CACHE_DIR.mkdir(exist_ok=True)
 PROFILE_DIR = "pw_profile"      # keeps cookies between runs
 DELAY = 5                       # seconds between page loads, keep it polite
@@ -118,7 +121,7 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
 
         def fetch(url) -> str | None:
             with sync_playwright() as p:
-                ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=True)
+                ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False)
                 page = ctx.new_page()
                 page.goto(url, wait_until="domcontentloaded", timeout=60_000)
                 page.wait_for_timeout(1000)
@@ -129,12 +132,9 @@ def analyst_ranks(end_number=NO_ANALYSTS_IN_MARKETBEAT, manual_list=manual_list,
                         "then press Enter (Ctrl+C to stop)... ")
                     page.wait_for_timeout(2000)
                     html = page.content()
-                    if is_challenge(html):
-                        print("Still blocked, stopping here.")
-                        ctx.close()
-                        return None
+                if is_challenge(html):
+                    raise Blocked(url)
 
-                ctx.close()
                 return html
                            
         html = fetch(analyst_i_url)

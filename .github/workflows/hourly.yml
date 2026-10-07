@@ -34,7 +34,7 @@ jobs:
         run: playwright install --with-deps chromium
 
       - name: Run the scraper
-        run: python _retrieve_topanalysts.py --mode fast
+        run: xvfb-run python _retrieve_topanalysts.py --mode fast
 
       - name: Commit and push output
         run: |
