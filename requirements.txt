@@ -5,3 +5,4 @@ pandas
 tqdm
 IPython
 jinja2
+playwright
